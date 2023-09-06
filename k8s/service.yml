@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+  labels:
+    app: audit-service
+spec:
+  type: ClusterIP
+  selector:
+    app: audit-service      # The label used to match the Pods to target and expose
+  ports:
+    - protocol: TCP
+      port: 80            # The port exposed by the Service
+      targetPort: 8300    # The port exposed by the Pods targeted by the Service

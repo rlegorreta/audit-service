@@ -1,0 +1,15 @@
+audit-service:
+  testing: true
+eureka:
+  client:
+    registerWithEureka: false
+spring:
+  data:
+    mongodb:
+      database: events
+      authentication-database: admin
+      username: test
+      password: test
+logging:
+  level:
+    root: INFO

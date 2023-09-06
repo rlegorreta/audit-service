@@ -1,0 +1,54 @@
+directive @uppercase on FIELD_DEFINITION
+
+scalar LocalDateTime
+scalar Instant
+scalar UUID
+scalar Map
+
+type Event {
+   id: ID!
+   correlationId: String
+   eventType: EventType
+   username: String!
+   eventName: String!
+   eventDate: LocalDateTime
+   applicationName: String!
+   eventBody: Map
+}
+
+type Notification {
+  username: String
+  title: String
+  message: String
+  time: Instant
+}
+
+input EventQuery {
+  eventName: String
+  username: String
+  eventDate: String
+  page: Int
+  size: Int
+}
+
+type Query {
+  events(eventName: [String],
+         applicationName: String,
+         eventType: EventType,
+         eventDate: [LocalDateTime]) : [Event]
+  event(id: ID!): Event
+  eventsPageable(eventQuery: EventQuery!): [Event]
+  eventsCount(eventQuery: EventQuery!): Int
+  eventsDetail(idUsuario: Int,
+               telefono: String): [Event]
+  notifications(username: String): [Notification]
+  notification: Notification
+}
+
+type Subscription {
+  notification: Notification
+}
+
+enum EventType {
+  DB_STORE, FILE_STORE, FULL_STORE, NON_STORE, ERROR_EVENT
+}
