@@ -117,13 +117,13 @@ class KafkaTests: HasLogger {
 
         val sentDTO = producer!!.generateOnlyEvent(eventName = "AUDIT_IAM", value = eventBody)
 
-        logger.debug(">>>>>>>>>>>>>>>>>>> Will send the event using $template from kakfa")
+        logger.debug("Will send the event using $template from kakfa")
         //  Here is we don´t kno why need to send a second event using Kafka template
         var sentRes = template!!.send("audit", "producerTest-out-0", sentDTO).get()
         logger.debug("Sent message:$sentRes")
 
         val messageConsumed = consumer!!.latch.await(10, TimeUnit.SECONDS)
-        logger.debug(">>>>>>>>>>>>>>>>>> After consumer $messageConsumed")
+        logger.debug("After consumer $messageConsumed")
 
         //  assertTrue(messageConsumed)
         Assertions.assertThat((eventRepository.findAll() as Collection<Event?>).size).isEqualTo(1)
