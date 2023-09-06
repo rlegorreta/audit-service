@@ -20,7 +20,7 @@
  *
  *  Developed 2021 by LegoSoft Soluciones, S.C. www.legosoft.com.mx
  */
-package com.lmass.audit.service;
+package com.ailegorreta.auditservice.service;
 
 import org.springframework.stereotype.Service;
 
@@ -35,4 +35,4 @@ import org.springframework.stereotype.Service;
  * @date April 2021
  */
 @Service
-public class ApplicationContextProvider extends com.lmass.commons.utils.ApplicationContextProvider  { }
+public class ApplicationContextProvider extends com.ailegorreta.commons.utils.ApplicationContextProvider  { }
