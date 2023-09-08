@@ -47,7 +47,7 @@ class EventServiceTest(private val streamBridge: StreamBridge,
     private val coreName = "iam-service"            // simulate any microservice that send auditory events
 
     /**
-     * This mehtod sends an event using Spring cloud stream, i.e., streamBridge instance
+     * This method sends an event using Spring cloud stream, i.e., streamBridge instance
      */
     fun sendEvent(correlationId: String = "CorrelationId-test",
                   userName: String = "Test",

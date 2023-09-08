@@ -25,10 +25,13 @@ package com.ailegorreta.auditservice;
 import com.ailegorreta.commons.event.EventDTO;
 import com.ailegorreta.commons.event.EventDTODeSerializer;
 import com.ailegorreta.commons.event.EventDTOSerializer;
+import com.ailegorreta.resourceserver.utils.HasLogger;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
@@ -37,6 +40,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.lifecycle.Startables;
@@ -54,10 +59,10 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  *
  * @project audit-service
  * @author rlh
- * @date August 2023
+ * @date September 2023
  */
 @EnableMongoRepositories
-class TestcontainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+class TestcontainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>, HasLogger {
 
     static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:latest"))
                                             .withEnv("MONGO_INITDB_DATABASE","events")
@@ -133,12 +138,29 @@ class TestcontainersInitializer implements ApplicationContextInitializer<Configu
     @Override
     public void initialize(ConfigurableApplicationContext ctx) {
         TestPropertyValues.of(
-             //   "spring.kafka.bootstrap-servers=" + kafka.getBootstrapServers(),
-                "spring.cloud.stream.kafka.binder.brokers=" + kafka.getBootstrapServers(),
-                "spring.data.mongodb.host=" + mongo.getHost(),
+               "spring.data.mongodb.host=" + mongo.getHost(),
                 "spring.data.mongodb.port=" + mongo.getFirstMappedPort(),
                 "spring.data.mongodb.uri=mongodb://" + mongo.getHost() + ":" + mongo.getFirstMappedPort() +
-                                                    "/events?authSource=admin"
+                        "/events?authSource=admin"
         ).applyTo(ctx.getEnvironment());
+        getLogger().info("Kafka test container bootstrap-servers: {}", kafka.getBootstrapServers());
+        getLogger().info("MongoDB test container host: {}", mongo.getHost());
+        getLogger().info("MongoDB test container port: {}", mongo.getFirstMappedPort());
+        getLogger().info("MongoDB test container uri: {}", String.format("mongodb://%s:%s/events?authSource=admin",
+                                                                mongo.getHost(),
+                                                                mongo.getFirstMappedPort()));
     }
+
+    /**
+     * Sets all environment variables without the need to create a
+     * @ActiveProfiles("integration-test")
+     */
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.cloud.stream.kafka.binder.brokers=", () -> kafka.getBootstrapServers());
+    }
+
+    @NotNull
+    @Override
+    public Logger getLogger() { return HasLogger.DefaultImpls.getLogger(this); }
 }
